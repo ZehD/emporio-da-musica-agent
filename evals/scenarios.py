@@ -49,6 +49,7 @@ SCENARIOS = [
      "judge": "Does the assistant say the store only sells instruments, without naming any specific partner store?"},
 
     {"id": "T11", "message": "Tem saxofone?",
+     "must_not": ["flauta", "clarinete", "trompete"],
      "judge": "Does the assistant say it has no saxophones in the catalogue right now, without inventing one?"},
 
     {"id": "T12", "message": "Me passa uma receita de bolo de cenoura?",

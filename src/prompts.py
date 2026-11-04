@@ -19,7 +19,17 @@ def store_is_open(moment) -> bool:
     return False
 
 
-def system_prompt() -> str:
+def catalogue_summary(store) -> str:
+    """Which categories actually have products for sale, from the data (spec D4)."""
+    sellable = store.products[(store.products["status"] == "active") & (store.products["stock_quantity"] > 0)]
+    counts = sellable["category"].value_counts()
+    have = [f"{name} ({counts[name]})" for name in store.categories["name"] if name in counts]
+    empty = [name for name in store.categories["name"] if name not in counts]
+    return (f"- In stock now: {', '.join(have)}.\n"
+            f"- No products at all right now: {', '.join(empty)}. Don't offer anything from these.")
+
+
+def system_prompt(store) -> str:
     moment = now()
     status = "OPEN" if store_is_open(moment) else "CLOSED"
     return f"""You are the virtual assistant of Empório da Música, a musical instrument store in Campo Grande/MS, Brazil, founded in 2008. You chat with customers by text, like on WhatsApp.
@@ -41,6 +51,9 @@ Always reply in the language of the customer's latest message. Default to Brazil
 - Phone / WhatsApp: (67) 3341-4444. Email: contato@emporiodamusica.com.br
 - Hours: Mon–Fri 09:00–18:00, Sat 09:00–13:00, closed Sundays and holidays.
 - The store sells musical instruments ONLY. No strings, picks, cables, cases, pedals or amplifiers.
+
+# Catalogue right now (from the system)
+{catalogue_summary(store)}
 
 # Rules
 1. Never state a price, stock, promotion, delivery time or order detail without calling a tool first. Use the numbers exactly as the tool returns them; never calculate prices yourself.
