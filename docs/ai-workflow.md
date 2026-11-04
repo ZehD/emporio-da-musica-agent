@@ -138,6 +138,15 @@ With the core done, I added a small web UI: streaming chat plus a run inspector 
 
 The inspector exists for the same reason as `--debug` in the terminal. With an agent, the interesting part is not the answer but *why* it gave it: which tool it picked, with what arguments, and what came back.
 
+### Reading the conversations like a reviewer would
+
+The example conversations are recorded from real runs, so I read every one before committing them, as if I were the reviewer. They looked fine at a glance and had two problems:
+
+- **The expired promotion.** Asked "wasn't it 12% off?", the agent said it couldn't confirm a previous discount. It was being honest: my data layer threw expired promotions away, so it had never seen them. But manual §7.3 asks for the opposite: tell the customer the promotion *has ended*, and give the current price. Expired promotions now come back from `get_product` as a separate list ("ended"), never used for prices. The agent now says "that 12% offer has ended". In trying to keep the agent away from stale data, I had removed context it needed.
+- **Promising what it can't do.** It offered to "let you know on WhatsApp when there's a promotion". It has no way to do that, and the store's privacy policy requires explicit consent for marketing messages. New rule: only offer actions the tools can actually perform; for anything else, offer the team.
+
+Neither was caught by the tests, because both were things I hadn't thought to check. Reading the output is part of testing.
+
 ### Choosing the model with the tests
 
 One OpenRouter key made it cheap to compare models on the same 15 scenarios. A full run of four models cost less than one US cent. Results are in the README.
