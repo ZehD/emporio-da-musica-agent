@@ -1,0 +1,8 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.claude/
+.DS_Store
+*.zip
+case/
