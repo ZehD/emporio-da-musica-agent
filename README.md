@@ -134,6 +134,21 @@ From [spec §7](docs/spec.md#7-assumptions):
 
 ---
 
+## Next improvement: tool results
+
+I reviewed the tools against Anthropic's guidance on writing tools for agents.
+
+**Naming is in line with it.** The tools have specific verb_noun names, unambiguous parameters, `enum` for fixed values, and descriptions that say *when* to call each tool. I didn't namespace the tools (e.g. `store_products_search`). That advice is for agents with many tools across several services; with five tools in one domain it adds noise. I'd add prefixes when a second system comes in, such as a carrier's tracking API.
+
+**The tool results are where I'd invest next.** The guidance is to return meaningful context and make errors actionable: what went wrong, what valid input looks like, what to try next. Today:
+- **Empty searches** list the categories with stock. They should also say *why* the search came back empty and what to try instead: repeat the filters used, give the cheapest in-stock option in that category, and mention sold-out matches.
+- **Truncated searches** show 10 results without saying how many exist. They should say "showing 10 of 33; narrow it with `max_price` or `query`".
+- **Internal codes** like `credit_12x` should come back as readable labels ("crédito em 12x").
+- **Invalid arguments** return the raw exception text. They should say which parameter was wrong and what the valid values are.
+- **Failed order checks** show where this guidance meets privacy. The result must never say *which* field didn't match, or it would reveal whether an order exists. It can still guide the agent: ask the customer to check both fields, and offer a handoff after two failed attempts.
+
+Each change would be measured with the test suite before and after, like every other change in this project.
+
 ## Known limitations, and what I'd do with more time
 
 - **Holidays.** The agent knows the weekly hours but not the holiday calendar. I'd add a holiday list for Campo Grande.
