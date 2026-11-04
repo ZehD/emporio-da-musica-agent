@@ -197,6 +197,7 @@ def get_product(store: Store, name_or_id: str) -> dict:
             **_summary(row),
             "descricao": row["description"],
             "especificacoes": json.loads(row["specs"]) if row["specs"] else {},
+            "promocoes_encerradas": row["ended_promos"] if isinstance(row["ended_promos"], list) else [],
         })
     return {"encontrado": True, "produtos": products}
 

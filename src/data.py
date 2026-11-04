@@ -42,13 +42,19 @@ def load_store() -> Store:
         how="left",
     )
 
-    # Only active promotions count (spec B10). Expired rows, including the
-    # duplicates for the same product, are dropped here (spec D11).
+    # Only active promotions count for prices (spec B10, D11).
     promotions = _read("promotions")
     promotions["product_id"] = promotions["product_id"].astype(int)
     promotions["discount_percent"] = promotions["discount_percent"].astype(float)
     active = promotions[promotions["is_active"] == "1"]
     active = active.sort_values("discount_percent").drop_duplicates("product_id", keep="last")
+    # Expired promotions are kept as plain text, so the agent can say a promotion
+    # has ended instead of pretending it never existed (manual §7.3).
+    expired = promotions[promotions["is_active"] != "1"].drop_duplicates(["product_id", "description", "discount_percent"])
+    ended = expired.groupby("product_id").apply(
+        lambda g: [f"{r.description} ({r.discount_percent:g}%)" for r in g.itertuples()], include_groups=False
+    ).rename("ended_promos")
+    products = products.merge(ended, on="product_id", how="left")
     products = products.merge(
         active[["product_id", "discount_percent", "description"]].rename(
             columns={"discount_percent": "promo_percent", "description": "promo_name"}
