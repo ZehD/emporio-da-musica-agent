@@ -166,7 +166,10 @@ def search_products(store: Store, query: str = "", category: str = "",
     results = [_summary(r) for _, r in df.head(10).iterrows()]
     out = {"total_encontrado": int(len(df)), "produtos": results}
     if not results:
+        # An empty search is when models improvise, so say what *is* available (spec B6, D4).
+        sellable = store.products[store.products.apply(_is_sellable, axis=1)]
         out["observacao"] = "Nenhum produto encontrado com esses critérios no catálogo atual."
+        out["categorias_com_estoque"] = sorted(sellable["category"].unique().tolist())
     return out
 
 

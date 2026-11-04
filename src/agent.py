@@ -79,7 +79,7 @@ class Agent:
             run.llm_rounds += 1
             response = self.client.chat.completions.create(
                 model=self.model,
-                messages=[{"role": "system", "content": system_prompt(self.store)}, *self.history],
+                messages=[{"role": "system", "content": system_prompt()}, *self.history],
                 tools=tool_schemas,
                 temperature=0.3,
                 stream=True,

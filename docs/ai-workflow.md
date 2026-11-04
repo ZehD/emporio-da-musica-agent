@@ -123,9 +123,12 @@ The lesson I keep relearning: when a test fails, first ask whether the agent was
 
 Chatting with the agent by hand, I asked about a saxophone. It correctly said there were none, then offered "a flute or a clarinet instead". There are no wind instruments in the catalogue at all. The search had come back empty, and the model filled the gap with the manual's description of what the store sells. The test for this scenario (T11) had passed, because its judging question only checked that no saxophone was invented.
 
-Two fixes, both grounded in the spec (D4):
-- **The cause:** the system prompt now includes which categories have products and which are empty, computed from the data at runtime.
-- **The test:** T11 now fails if the answer offers any wind instrument.
+The assistant's first fix was to put a summary of which categories have stock into the system prompt, computed from the data each turn. It worked, but I pushed back: that's catalogue data living in the prompt, when our own rule is that facts come from tools. It also makes the prompt change whenever the data does, which works against prompt caching. My instinct was to reinforce the rule ("always check availability before offering"), maybe with an extra tool.
+
+We landed on something between the two:
+- **A stricter rule:** only offer products or product types that a tool returned in this conversation.
+- **No new tool.** The empty search result now lists the categories that do have stock. The failure happens exactly when a search comes back empty, so that's where the information needs to be. Then the model doesn't have to remember a second tool at the moment it's most likely to improvise.
+- **A stricter test:** T11 now fails if the answer offers any wind instrument.
 
 Tests catch what you thought to check. Using the thing catches the rest, and every bug found that way becomes a new check.
 
