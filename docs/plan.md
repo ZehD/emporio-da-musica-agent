@@ -53,8 +53,12 @@ Server address, key and model are set in `.env`. That works with OpenRouter, Ope
 ### 5. No agent framework
 The loop is about 60 lines on the plain SDK. A framework (LangChain, LangGraph) would add abstraction without adding capability at this size. It would make sense with multi-step workflows, persisted checkpoints or human approval steps.
 
-### 6. Interface: terminal chat
+### 6. Interface: terminal chat and a small web UI
 `python main.py` starts a chat; `--debug` prints each tool call and its result. A script replays scripted conversations and saves them as markdown in `conversations/`.
+
+Added after the core was done: a small web UI (`uvicorn web.app:app`). It's one FastAPI file and one HTML page with plain JavaScript, no build step. It streams the answer token by token and has a **run inspector**: for each turn, the model, total latency, time to first token, number of LLM calls, tokens in and out, and every tool call with its arguments, result and duration. It exists to make the agent's behaviour visible, which is the same reason the terminal has `--debug`.
+
+The agent loop yields events (`token`, `tool`, `done`). The web UI streams them, and the terminal chat, tests and recording script just collect them, so there is still only one loop.
 
 ### 7. Conversation history
 Kept in memory for the session, which is what a chat needs. Saving it across sessions (by customer phone number, for example) is listed under "with more time".

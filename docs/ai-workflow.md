@@ -106,4 +106,37 @@ On RAG, the deciding factor was the shape of the data. The operational data is s
 
 Both decisions, and when I'd revisit them, are in [plan.md](plan.md).
 
-**Next:** first commits, then code.
+### Building: tools first, then the loop, then the tests
+
+The build order followed the plan: the manual converted to markdown sections, the data layer, the five tools, the prompt and the loop, then the test suite. Each step was checked before the next one and committed separately.
+
+Some things I only learned by running the code:
+
+- **Smoke-testing the tools caught a search bug before any model was involved.** Searching for "violão" also returned a ukulele, whose description mentions the word. Now category words in the search text become a category filter.
+- **The first test run failed 2 of 15, and only one failure was the agent's fault.** The English message (T15) got a Portuguese reply, because every tool result is in Portuguese and pulled the model along. A clearer language rule at the top of the prompt fixed it.
+- **The other failure was my spec's.** On the return request (T9), the agent didn't simply confirm eligibility. It noticed the data only has an *estimated* delivery date, said the customer was probably within the 7 days, and asked for the actual receipt date before handing off to the team. That's better than what I'd specified. I changed spec assumption A2 and the test's judging question, not the agent.
+- **Same thing on T5:** one model checked the manual for the opening hours. The test had forbidden *any* tool, but what matters is that it doesn't call *data* tools for a store-info question, so I narrowed the rule.
+
+The lesson I keep relearning: when a test fails, first ask whether the agent was wrong or the test was. Changing a test to make it pass is only legitimate when you can write down why the original expectation was wrong, which is what the notes above are for.
+
+### A bug the tests didn't catch, found by using it
+
+Chatting with the agent by hand, I asked about a saxophone. It correctly said there were none, then offered "a flute or a clarinet instead". There are no wind instruments in the catalogue at all. The search had come back empty, and the model filled the gap with the manual's description of what the store sells. The test for this scenario (T11) had passed, because its judging question only checked that no saxophone was invented.
+
+Two fixes, both grounded in the spec (D4):
+- **The cause:** the system prompt now includes which categories have products and which are empty, computed from the data at runtime.
+- **The test:** T11 now fails if the answer offers any wind instrument.
+
+Tests catch what you thought to check. Using the thing catches the rest, and every bug found that way becomes a new check.
+
+### Going a step further: a small web UI
+
+With the core done, I added a small web UI: streaming chat plus a run inspector showing, for each turn, the model, latency, time to first token, tokens and every tool call. The constraint I gave the assistant was the same as for the rest: simple code, grounded in the spec. That meant one FastAPI file and one HTML page with plain JavaScript, no build step, and no second agent loop: the existing loop now yields events, and everything else consumes them.
+
+The inspector exists for the same reason as `--debug` in the terminal. With an agent, the interesting part is not the answer but *why* it gave it: which tool it picked, with what arguments, and what came back.
+
+### Choosing the model with the tests
+
+One OpenRouter key made it cheap to compare models on the same 15 scenarios. A full run of four models cost less than one US cent. Results are in the README.
+
+**Next:** example conversations and the README.
