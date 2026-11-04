@@ -51,7 +51,7 @@ The CSVs are loaded into pandas at startup and cleaned once (types, line endings
 Server address, key and model are set in `.env`. That works with OpenRouter, OpenAI directly, or a local model, so reviewers can use whatever key they have. The model is chosen by running the test scenarios on a shortlist and comparing pass rate, cost and latency.
 
 ### 5. No agent framework
-The loop is about 60 lines on the plain SDK. A framework (LangChain, LangGraph) would add abstraction without adding capability at this size. It would make sense with multi-step workflows, persisted checkpoints or human approval steps.
+The loop is about 100 lines on the plain SDK. A framework (LangChain, LangGraph) would add abstraction without adding capability at this size. It would make sense with multi-step workflows, persisted checkpoints or human approval steps.
 
 ### 6. Interface: terminal chat and a small web UI
 `python main.py` starts a chat; `--debug` prints each tool call and its result. A script replays scripted conversations and saves them as markdown in `conversations/`.

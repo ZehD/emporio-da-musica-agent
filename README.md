@@ -77,7 +77,7 @@ The full reasoning is in [docs/plan.md](docs/plan.md). In short:
 
 **Provider-agnostic.** The plain OpenAI SDK with a configurable base URL runs on OpenRouter, OpenAI or a local Ollama model without code changes. One key also made it cheap to choose the model with data (below).
 
-**No framework.** The loop is ~60 lines. LangChain or LangGraph would add abstraction without adding capability at this size. They'd make sense with multi-step workflows, persisted state or approval steps.
+**No framework.** The loop is about 100 lines. LangChain or LangGraph would add abstraction without adding capability at this size. They'd make sense with multi-step workflows, persisted state or approval steps.
 
 **Prompt strategy.** A short system prompt: persona and tone from the manual (§7.1), language rule, live store status, store basics that every conversation needs, and 10 numbered rules. Each rule traces back to a behaviour in the spec. Tool descriptions say *when* to use each tool, which is where most routing decisions are actually made.
 
