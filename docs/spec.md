@@ -84,7 +84,7 @@ Found during the initial audit. Each one is linked to the behaviour that covers 
 ## 7. Assumptions
 
 - **A1.** Orders are treated as **online** purchases (the 7-day withdrawal right applies), since the agent works on a remote channel.
-- **A2.** The return window counts from `estimated_delivery` when it exists. Without it, the agent can't confirm eligibility and hands off.
+- **A2.** The data has no actual delivery date, so `estimated_delivery` is used as an estimate of when the customer received the order. The agent confirms the real receipt date with the customer before handing off. Without an estimate, it can't assess eligibility and hands off.
 - **A3.** The CSVs are a **snapshot**. "Today" is configurable (`REFERENCE_DATE`), defaulting to the real date.
 - **A4.** The manual's §1.2 contact data is the official one (D8, D9).
 
